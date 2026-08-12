@@ -45,4 +45,7 @@ public class PostService {
     public void deleteComment(Post post, int commentId) {
         post.removeComment(commentId);
     }
+    public PostComment findCommentById(Post post, int commentId) {
+        return post.findCommentById(commentId);
+    }
 }

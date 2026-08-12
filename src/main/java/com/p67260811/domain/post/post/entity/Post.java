@@ -24,8 +24,17 @@ public class Post extends BaseEntity {
         this.content = content;
     }
 
+
     @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     List<PostComment> comments = new ArrayList<>();
+
+    public PostComment findCommentById(int id) {
+        return comments
+                .stream()
+                .filter(c -> c.getId() == id)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다"));
+    }
 
     public PostComment addComment(String content) {
         PostComment postComment = new PostComment(content, this);
@@ -33,6 +42,7 @@ public class Post extends BaseEntity {
 
         return postComment;
     }
+
     public void removeComment(int id) {
         comments.removeIf(comment -> comment.getId() == id);
     }
@@ -48,4 +58,5 @@ public class Post extends BaseEntity {
 
         return postComment;
     }
+
 }
