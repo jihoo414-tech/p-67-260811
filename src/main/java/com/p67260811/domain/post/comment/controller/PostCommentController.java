@@ -79,11 +79,14 @@ public class PostCommentController {
     ) {
 
         Post post = postService.findById(postId).get();
+        PostComment postComment = postService.findCommentById(post, commentId);
+
         postService.deleteComment(post, commentId);
 
         return new RsData(
                 "200-1",
-                "%d번 댓글이 삭제되었습니다.".formatted(commentId)
+                "%d번 댓글이 삭제되었습니다.".formatted(commentId),
+                new PostCommentDto(postComment)
         );
     }
 
