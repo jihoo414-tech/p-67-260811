@@ -5,6 +5,7 @@ import com.p67260811.domain.post.post.dto.PostDto;
 import com.p67260811.domain.post.post.entity.Post;
 import com.p67260811.domain.post.post.service.PostService;
 import com.p67260811.global.dto.RsData;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -72,6 +73,7 @@ public class PostController {
 
 
     @PatchMapping("/{id}")
+    @Transactional
     public RsData<Void> modify(
             @PathVariable int id,
             @Valid @RequestBody PostModifyReqBody reqBody

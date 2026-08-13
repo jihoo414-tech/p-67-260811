@@ -11,10 +11,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,13 +21,6 @@ import java.util.List;
 public class PostCommentController {
 
     private final PostService postService;
-
-    record CommentWriteForm(
-            @NotBlank(message = "댓글 내용을 입력해주세요.")
-            @Size(min = 2, max = 100, message = "댓글 내용은 2글자 이상 100글자 이하로 입력해주세요.")
-            String content
-    ) {
-    }
 
     @GetMapping
     public List<PostCommentDto> list(
@@ -55,9 +45,17 @@ public class PostCommentController {
         return new PostCommentDto(postComment);
     }
 
-    @GetMapping("/write")
+
+    record CommentWriteForm(
+            @NotBlank(message = "댓글 내용을 입력해주세요.")
+            @Size(min = 2, max = 100, message = "댓글 내용은 2글자 이상 100글자 이하로 입력해주세요.")
+            String content
+    ) {
+    }
+
+    @PostMapping
     @Transactional
-    public String write(
+    public RsData<PostCommentDto> write(
             @PathVariable int postId,
             @Valid CommentWriteForm form
     ) {
@@ -66,12 +64,14 @@ public class PostCommentController {
         PostComment postComment = postService.writeComment(post, form.content);
         // DB 저장
         postService.flush();
-
-        return "%d번 댓글이 성공적으로 등록되었습니다.".formatted(postComment.getId()); // 아직 DB에 저장되지 않은 시점
-
+        return new RsData<>(
+                "201-1",
+                "%d번 댓글이 성공적으로 등록되었습니다.".formatted(postComment.getId()),
+                new PostCommentDto(postComment)
+        );
     }
 
-    @GetMapping("/{commentId}/delete")
+    @DeleteMapping("/{commentId}")
     @Transactional
     public RsData<Void> delete(
             @PathVariable int postId,
@@ -79,14 +79,13 @@ public class PostCommentController {
     ) {
 
         Post post = postService.findById(postId).get();
-        PostComment postComment = postService.findCommentById(post, commentId);
-
         postService.deleteComment(post, commentId);
 
         return new RsData<>(
                 "200-1",
                 "%d번 댓글이 삭제되었습니다.".formatted(commentId)
         );
+
     }
 
     record CommentModifyForm(
@@ -96,9 +95,9 @@ public class PostCommentController {
     ) {
     }
 
-    @GetMapping("/{commentId}/modify")
+    @PatchMapping("/{commentId}")
     @Transactional
-    public String modify(
+    public RsData<Void> modify(
             @PathVariable int postId,
             @PathVariable int commentId,
             @Valid CommentModifyForm form
@@ -107,6 +106,10 @@ public class PostCommentController {
         Post post = postService.findById(postId).get();
         postService.modifyComment(post, commentId, form.content);
 
-        return "%d번 댓글이 수정되었습니다.".formatted(commentId);
+        return new RsData<>(
+                "200-1",
+                "%d번 댓글이 수정되었습니다.".formatted(commentId)
+        );
+
     }
 }
