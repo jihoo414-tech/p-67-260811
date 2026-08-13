@@ -5,11 +5,9 @@ import com.p67260811.domain.post.post.dto.PostDto;
 import com.p67260811.domain.post.post.entity.Post;
 import com.p67260811.domain.post.post.service.PostService;
 import com.p67260811.global.dto.RsData;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -31,6 +29,23 @@ public class PostController {
         return postDtoList;
     }
 
+    record PostWriteRequestBody(
+            String title,
+            String content
+    ){}
+
+    @PostMapping
+    public RsData<PostDto> write(
+            @Valid @RequestBody PostWriteRequestBody reqBody
+    ){
+        Post post = postService.write(reqBody.title,reqBody.content);
+        return new RsData<>(
+                "201-1",
+        "%d번 글이 성공적으로 등록되었습니다".formatted(post.getId()),
+        new PostDto(post)
+                );
+    }
+
     @GetMapping("/{id}")
     public PostDto detail(
             @PathVariable int id
@@ -40,7 +55,7 @@ public class PostController {
         return new PostDto(post);
     }
 
-    @GetMapping("/{id}/delete")
+    @DeleteMapping("{id}")
     public RsData<PostDto> delete(
             @PathVariable int id
     ){
@@ -49,7 +64,7 @@ public class PostController {
 
 
         return new RsData<>(
-                "200-1",
+                "204-1",
                 "게시물이 삭제되었습니다.",
                 new PostDto(post)
         );
