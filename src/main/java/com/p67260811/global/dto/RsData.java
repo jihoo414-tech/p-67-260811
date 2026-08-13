@@ -1,5 +1,6 @@
 package com.p67260811.global.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -14,5 +15,10 @@ public class RsData<T> {
         this.resultCode = resultCode;
         this.msg = msg;
         this.data = null;
+    }
+
+    @JsonIgnore
+    public int getStatusCode(){
+        return Integer.parseInt(resultCode.split("-")[0]);
     }
 }
