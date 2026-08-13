@@ -6,6 +6,8 @@ import com.p67260811.domain.post.post.entity.Post;
 import com.p67260811.domain.post.post.service.PostService;
 import com.p67260811.global.dto.RsData;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +32,11 @@ public class PostController {
     }
 
     record PostWriteReqBody(
+            @Size(min = 2, max = 10 , message = "제목은 2글자 이상 10글자 이하로 작성해주세요")
+            @NotBlank(message = "제목을 입력해주세요.")
             String title,
+            @Size(min = 2, max = 10 , message = "내용은 2글자 이상 10글자 이하로 작성해주세요")
+            @NotBlank(message = "내용을 입력해주세요.")
             String content
     ){}
 
@@ -55,6 +61,32 @@ public class PostController {
 
     }
 
+    record PostModifyReqBody(
+            @Size(min = 2, max = 10 , message = "제목은 2글자 이상 10글자 이하로 작성해주세요")
+            @NotBlank(message = "제목을 입력해주세요.")
+            String title,
+            @Size(min = 2, max = 10 , message = "내용은 2글자 이상 10글자 이하로 작성해주세요")
+            @NotBlank(message = "내용을 입력해주세요.")
+            String content
+    ){}
+
+
+    @PatchMapping("/{id}")
+    public RsData<Void> modify(
+            @PathVariable int id,
+            @Valid @RequestBody PostModifyReqBody reqBody
+
+    ){
+        Post post = postService.findById(id).get();
+        postService.modify(post,reqBody.title,reqBody.content);
+
+        return new RsData<>(
+                "200-1",
+                "%d번 게시물이 수정되었습니다".formatted(id)
+        );
+
+    }
+
     @GetMapping("/{id}")
     public PostDto detail(
             @PathVariable int id
@@ -73,7 +105,7 @@ public class PostController {
 
 
         return new RsData<>(
-                "200-2",
+                "200-1",
                 "게시물이 삭제되었습니다."
         );
 
