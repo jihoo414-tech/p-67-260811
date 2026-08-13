@@ -29,20 +29,28 @@ public class PostController {
         return postDtoList;
     }
 
-    record PostWriteRequestBody(
+    record PostWriteReqBody(
             String title,
             String content
     ){}
 
+    record PostWriteResBody(
+            PostDto postDto,
+            long totalPostCount
+    ){}
+
     @PostMapping
-    public RsData<PostDto> write(
-            @Valid @RequestBody PostWriteRequestBody reqBody
+    public RsData<PostWriteResBody> write(
+            @Valid @RequestBody PostWriteReqBody reqBody
     ){
         Post post = postService.write(reqBody.title,reqBody.content);
         return new RsData<>(
                 "201-1",
         "%d번 글이 성공적으로 등록되었습니다".formatted(post.getId()),
-        new PostDto(post)
+        new PostWriteResBody(
+                new PostDto(post),
+                postService.count()
+        )
                 );
     }
 
